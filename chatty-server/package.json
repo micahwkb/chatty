@@ -1,0 +1,23 @@
+{
+  "name": "chatty-server",
+  "version": "1.0.0",
+  "description": "Express server and websocket functions for Chatty App",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micahwkb/chatty.git"
+  },
+  "author": "Micah Britton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/micahwkb/chatty/issues"
+  },
+  "homepage": "https://github.com/micahwkb/chatty#readme",
+  "dependencies": {
+    "express": "4.14.0",
+    "ws": "1.1.1"
+  }
+}
