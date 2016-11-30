@@ -20,23 +20,31 @@ const data = {
   ]
 };
 
+
+
 class App extends Component {
 
   constructor(prop) {
     super(prop);
     this.state = data;
   }
+
+  addMessage(username, message) {
+    console.log(username, message)
+  }
+
   componentDidMount() {
     console.log("componentDidMount <App />");
-    setTimeout(() => {
-      console.log("Simulating incoming message");
-      // Add a new message to the list of messages in the data store
-      const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-      const messages = this.state.messages.concat(newMessage)
-      // Update the state of the app component.
-      // Calling setState will trigger a call to render() in App and all child components.
-      this.setState({messages: messages})
-    }, 3000);
+
+    // init WebSocket client for this App instance
+    this.socket = new WebSocket('ws://localhost:4000');
+
+    this.socket.onopen = function(event) {
+      console.log('Client: I am connected, right?');
+    }
+    this.socket.onmessage = function(event) {
+      console.log(event.data);
+    }
   }
 
   render() {
@@ -47,16 +55,28 @@ class App extends Component {
           <h1>Chatty</h1>
         </nav>
         <MessageList messages={this.state.messages} />
-        <ChatBar user={this.state.currentUser}/>
+        <ChatBar
+        handleName={this.handleName}
+        handleMessage={this.handleMessage}
+        addMessage={this.addMessage}
+        user={this.state.currentUser}
+
+        />
       </div>
     );
   }
 }
 export default App;
 
-// simple example:
+// example, within componentDidMount
 /*
-function Welcome(props) {
-  return <h1>Hello, {props.name}</h1>;
-}
-*/
+    setTimeout(() => {
+      console.log("Simulating incoming message");
+      // Add a new message to the list of messages in the data store
+      const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
+      const messages = this.state.messages.concat(newMessage)
+      // Update the state of the app component.
+      // Calling setState will trigger a call to render() in App and all child components.
+      this.setState({messages: messages})
+    }, 2000);
+    */
