@@ -24,17 +24,17 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
   broadcastUserCount();
   // client opens socket connection
-  ws.on('open', function(event) {
+  ws.on('open', (event) => {
     console.log(event.data)
   });
 
   // receiving client message
-  ws.on('message', function(event) {
+  ws.on('message', (event) => {
     const messageBody = JSON.parse(event)
     // assign unique id to incoming message
     messageBody.id = uuid.v1();
     // broadcast new message to all clients
-    wss.clients.forEach(function each(client) {
+    wss.clients.forEach((client) => {
       client.send(JSON.stringify(messageBody));
     });
   });

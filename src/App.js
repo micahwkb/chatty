@@ -71,7 +71,7 @@ class App extends Component {
   componentDidMount() {
     console.log("componentDidMount <App />");
     // set a random colour for this client
-    this.setState({ userColour: randomcolor() });
+    this.setState({ userColour: randomcolor({luminosity: 'dark'}) });
     // init WebSocket client for this App instance
     this.socket = new WebSocket('ws://localhost:4000');
     // connected to Web Socket Server:
