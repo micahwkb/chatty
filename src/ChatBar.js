@@ -29,13 +29,9 @@ class ChatBar extends Component {
     // on 'Enter' send message back to App
     this.submitNewMessage = (e) => {
       const message = this.state.message
+      // don't submit empty message
       if (e.key === 'Enter' && message) {
-        this.props.addMessage({
-          messageType: 'message',
-          content: message
-          // -- was used when sending username as part of message
-          // username: this.state.username || 'Anonymous',
-        });
+        this.props.addMessage(message);
       }
     }
   }

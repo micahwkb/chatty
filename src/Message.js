@@ -6,14 +6,10 @@ class Message extends Component {
 
   render() {
 
-    const content   = this.props.content;
-    const username  = this.props.username;
-    const className = this.props.messageType;
-
     return (
-      <div className={className}>
-        <span className="username">{username}</span>
-        <span className="content">{content}</span>
+      <div className={this.props.className}>
+        <span className="username">{this.props.username}</span>
+        <span className="content">{this.props.content}</span>
       </div>
     );
   }

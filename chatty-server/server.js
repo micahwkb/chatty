@@ -17,16 +17,16 @@ wss.on('connection', (ws) => {
     console.log(event.data)
   });
 
-  // client sends message
+  // receiving client message
   ws.on('message', function(event) {
     const messageBody = JSON.parse(event)
+    // assign unique id to incoming message
     messageBody.id = uuid.v1();
-    // console.log(messageBody);
+    // broadcast new message to all clients
     wss.clients.forEach(function each(client) {
       client.send(JSON.stringify(messageBody));
     });
   });
-
   // client closes socket
   ws.on('close', () => console.log('Client disconnected'));
 })

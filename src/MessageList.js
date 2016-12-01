@@ -13,9 +13,9 @@ class MessageList extends Component {
         {messages.map((message) =>
             <Message
               key={message.id}
+              className={message.className}
               content={message.content}
               username={message.username}
-              messageType={message.messageType}
             />
         )}
       </div>

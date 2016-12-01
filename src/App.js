@@ -9,45 +9,50 @@ class App extends Component {
     super(prop);
     this.state = {
       currentUser: {name: ''},
-      messages: []
+      messages: [],
+      userMessageCount: 0,
     }
-    // was going to handle user name change
-    // with message input... better user experience IMO
-    /*this.userChanged = (newName) => {
-      // console.log(oldName, newName);
-      let oldName = this.state.currentUser.name;
-      if ( oldName !== '') {
-        const systemMessage = {
-          content: `${oldName} changed their name to ${newName}`
-          };
-        this.socket.send(JSON.stringify(systemMessage));
-      }
-      // update currentUser in state
-      this.state.currentUser.name = newName
-    }*/
+    // send user's message to socket server
     this.addMessage = (content) => {
-      content.username = this.state.currentUser.name || 'Anonymous';
-      const messageBody = JSON.stringify(content);
-      // was going to handle name change on message receipt
-      /* const messageUser = content.username;
-      if (messageUser !== this.state.currentUser.name) {
-        this.userChanged(messageUser);
-      }*/
-      this.socket.send(messageBody);
+      // increment this client's message count
+      this.state.userMessageCount += 1;
+      // console.log(this.state.userMessageCount)
+      const userMessage = {
+        type: 'incomingMessage',
+        content: content,
+        username: this.state.currentUser.name || 'Anonymous'
+      }
+      this.socket.send(JSON.stringify(userMessage));
     }
     // receiving username change via ENTER press from ChatBar
     this.changeUser = (newUser) => {
       // compare to current state value
-      if (newUser !== this.state.currentUser.name) {
+      let currentUser = this.state.currentUser.name;
+      let systemMessage = {
+            type: 'incomingNotification',
+          };
+      // ignore attempts to change to same username
+      if (newUser !== currentUser) {
+        // setting name before first post
+        if (this.state.userMessageCount === 0) {
+          systemMessage.content = `${newUser} joined the chat`;
+        }
+        // change in user name AFTER first post
+        else {
+          systemMessage.content = `${currentUser || 'Anonymous'} changed their name to ${newUser}`;
+        }
+        // send message to socket server
+        this.socket.send(JSON.stringify(systemMessage));
         // handle empty user
         let name = newUser || 'Anonymous';
-        const systemMessage = {
-          messageType: 'message system',
-          content: `${this.state.currentUser.name || 'Anonymous'} changed their name to ${name}`
-          };
-        this.socket.send(JSON.stringify(systemMessage));
         this.state.currentUser.name = name;
       }
+    }
+
+    this.buildMessage = (newMessage) => {
+      const messages = this.state.messages.concat(newMessage);
+      this.setState({ messages: messages });
+      this.setState({ })
     }
   }
 
@@ -55,19 +60,29 @@ class App extends Component {
     console.log("componentDidMount <App />");
     // init WebSocket client for this App instance
     this.socket = new WebSocket('ws://localhost:4000');
-
-
+    // connected to Web Socket Server:
     this.socket.onopen = (event) => {
       console.log('socket client connected');
     }
+    // received message from WSS:
     this.socket.onmessage = (event) => {
+
       const newMessage = JSON.parse(event.data);
-      // console.log(this.state)
-      let messages = this.state.messages.concat(newMessage)
-      this.setState({ messages: messages })
+      newMessage.className = 'message';
+
+      switch(newMessage.type) {
+        case 'incomingNotification':
+          newMessage.className += ' system';
+          this.buildMessage(newMessage)
+          break;
+        case 'incomingMessage':
+          this.buildMessage(newMessage)
+          break;
+        default:
+          throw new Error('unknown message type ' + newMessage.type)
+      }
     }
   }
-
 
   render() {
 
