@@ -5,8 +5,6 @@ class Message extends Component {
   render() {
     const content = this.props.content;
     const imgURL = content.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)\.(png|gif|jpg)/gi);
-    console.log(imgURL)
-    // content.replace(imgURL, '')
 
     return (
       <div className={ this.props.className }>

@@ -34,6 +34,13 @@ class ChatBar extends Component {
         this.props.addMessage(message);
       }
     }
+    this.submitName = (e) => {
+      const name = this.state.username
+      // don't submit empty message
+      if (e.key === 'Enter') {
+        this.props.changeUser(name);
+      }
+    }
   }
 
   render() {
