@@ -6,22 +6,21 @@ class ChatBar extends Component {
     super(props);
     this.state = {
       username: this.props.username,
-      message: '',
+      message: ''
     };
-    // handle change to 'username' field
+    // show change to 'username' field
     this.handleUser = (e) => {
       this.setState({
         username: e.target.value
       });
     };
-    // this.handleUserChange = (e) => {
-    //   if (e.key === 'Enter') {
-    //     this.props.changeUser({
-    //       username: this.state.username
-    //     });
-    //   }
-    // };
-    // handle change to 'message' field
+    // send new username up to App on ENTER press
+    this.handleUserChange = (e) => {
+      if (e.key === 'Enter') {
+        this.props.changeUser(this.state.username);
+      }
+    };
+    // show change to 'message' field
     this.handleMessage = (e) => {
       this.setState({
         message: e.target.value
@@ -32,18 +31,14 @@ class ChatBar extends Component {
       const message = this.state.message
       if (e.key === 'Enter' && message) {
         this.props.addMessage({
-          username: this.state.username || 'Anonymous',
-          content: message,
-          messageType: 'user'
+          messageType: 'message',
+          content: message
+          // -- was used when sending username as part of message
+          // username: this.state.username || 'Anonymous',
         });
       }
     }
-  // end of constructor
   }
-
-
-
-
 
   render() {
     return (
@@ -53,8 +48,8 @@ class ChatBar extends Component {
           type="text"
           value={this.state.username}
           onChange={this.handleUser}
-          // onKeyPress={this.handleUserChange}
-          placeholder="Your Name (Optional)"
+          onKeyPress={this.handleUserChange}
+          placeholder="Your Name (Optional, hit ENTER to set)"
         />
         <input
           id="new-message"

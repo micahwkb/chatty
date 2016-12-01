@@ -6,11 +6,12 @@ class Message extends Component {
 
   render() {
 
-    const content = this.props.content;
-    const username = this.props.username;
+    const content   = this.props.content;
+    const username  = this.props.username;
+    const className = this.props.messageType;
 
     return (
-      <div className="message">
+      <div className={className}>
         <span className="username">{username}</span>
         <span className="content">{content}</span>
       </div>
@@ -18,9 +19,3 @@ class Message extends Component {
   }
 }
 export default Message;
-
-//e.g. inside "message"
-/*
-<span className="username">Anonymous1</span>
-<span className="content">I won't be impressed with technology until I can download food.</span>
-*/
