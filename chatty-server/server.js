@@ -10,8 +10,19 @@ const server = express()
 // WebSockets server
 const wss = new SocketServer({ server });
 
+// broadcast clientCount to all connected clients
+broadcastUserCount = () => {
+  wss.clients.forEach(function each(client) {
+    client.send(JSON.stringify({
+      type: 'userCount',
+      count: wss.clients.length
+    }));
+  })
+}
+
 wss.on('connection', (ws) => {
   console.log('Client connected');
+  broadcastUserCount();
   // client opens socket connection
   ws.on('open', function(event) {
     console.log(event.data)
@@ -28,5 +39,8 @@ wss.on('connection', (ws) => {
     });
   });
   // client closes socket
-  ws.on('close', () => console.log('Client disconnected'));
+  ws.on('close', () => {
+    broadcastUserCount();
+    console.log('Client disconnected');
+  });
 })

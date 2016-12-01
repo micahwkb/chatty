@@ -12,15 +12,16 @@ class MessageList extends Component {
       <div id="message-list">
         {messages.map((message) =>
             <Message
-              key={message.id}
-              className={message.className}
-              content={message.content}
-              username={message.username}
+              key={ message.id }
+              colour={ message.colour }
+              className={ message.className }
+              content={ message.content }
+              username={ message.username }
             />
         )}
       </div>
-
     );
+
   }
 }
 export default MessageList;

@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
+import randomcolor from 'randomcolor';
 
+import Nav from './Nav';
 import ChatBar from './ChatBar';
 import MessageList from './MessageList';
 
@@ -9,26 +11,40 @@ class App extends Component {
     super(prop);
     this.state = {
       currentUser: {name: ''},
+      userColour: randomcolor(),
       messages: [],
       userMessageCount: 0,
+      connectedUsers: 0
     }
+
     // send user's message to socket server
     this.addMessage = (content) => {
+      const username = this.state.currentUser.name || 'Anonymous';
+      if (this.state.userMessageCount === 0) {
+        this.changeUser(username)
+      }
       // increment this client's message count
-      this.state.userMessageCount += 1;
-      // console.log(this.state.userMessageCount)
+      this.state.userMessageCount ++;
       const userMessage = {
         type: 'incomingMessage',
         content: content,
-        username: this.state.currentUser.name || 'Anonymous'
+        username: username,
+        colour: this.state.userColour
       }
+      // send message to socket server
       this.socket.send(JSON.stringify(userMessage));
+    }
+    // add new message rec'd back from socket server
+    // to messages array
+    this.buildMessages = (newMessage) => {
+      const messages = this.state.messages.concat(newMessage);
+      this.setState({ messages: messages });
     }
     // receiving username change via ENTER press from ChatBar
     this.changeUser = (newUser) => {
       // compare to current state value
-      let currentUser = this.state.currentUser.name;
-      let systemMessage = {
+      const currentUser = this.state.currentUser.name;
+      const systemMessage = {
             type: 'incomingNotification',
           };
       // ignore attempts to change to same username
@@ -45,19 +61,17 @@ class App extends Component {
         this.socket.send(JSON.stringify(systemMessage));
         // handle empty user
         let name = newUser || 'Anonymous';
-        this.state.currentUser.name = name;
+        this.setState({ currentUser: {name: name} });
       }
     }
 
-    this.buildMessage = (newMessage) => {
-      const messages = this.state.messages.concat(newMessage);
-      this.setState({ messages: messages });
-      this.setState({ })
-    }
+
   }
 
   componentDidMount() {
     console.log("componentDidMount <App />");
+    // set a random colour for this client
+    this.setState({ userColour: randomcolor() });
     // init WebSocket client for this App instance
     this.socket = new WebSocket('ws://localhost:4000');
     // connected to Web Socket Server:
@@ -67,19 +81,22 @@ class App extends Component {
     // received message from WSS:
     this.socket.onmessage = (event) => {
 
-      const newMessage = JSON.parse(event.data);
-      newMessage.className = 'message';
+      const data = JSON.parse(event.data);
+      data.className = 'message';
 
-      switch(newMessage.type) {
+      switch(data.type) {
         case 'incomingNotification':
-          newMessage.className += ' system';
-          this.buildMessage(newMessage)
+          data.className += ' system';
+          this.buildMessages(data);
           break;
         case 'incomingMessage':
-          this.buildMessage(newMessage)
+          this.buildMessages(data);
+          break;
+        case 'userCount':
+          this.setState({ connectedUsers: data.count});
           break;
         default:
-          throw new Error('unknown message type ' + newMessage.type)
+          throw new Error('unknown message type ' + data.type)
       }
     }
   }
@@ -88,9 +105,7 @@ class App extends Component {
 
     return (
       <div className="wrapper">
-        <nav>
-          <h1>Chatty</h1>
-        </nav>
+        <Nav userCount={this.state.connectedUsers} />
         <MessageList messages={this.state.messages} />
         <ChatBar
           username={this.state.currentUser.name}
