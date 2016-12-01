@@ -5,34 +5,45 @@ class ChatBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: this.props.user.name || '',
+      username: this.props.username,
       message: '',
     };
-    this.handleUser     = this.handleUser.bind(this);
-    this.handleMessage  = this.handleMessage.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-  }
-  // handle change to 'username' field
-  handleUser(e) {
-    this.setState({
-      username: e.target.value
-    });
-  }
-  // handle change to 'message' field
-  handleMessage(e) {
-    this.setState({
-      message: e.target.value
-    });
-  }
-  // on 'Enter' send message back to App
-  handleKeyPress(e) {
-    if (e.key === 'Enter') {
-      this.props.addMessage(
-        this.state.username,
-        this.state.message
-        );
+    // handle change to 'username' field
+    this.handleUser = (e) => {
+      this.setState({
+        username: e.target.value
+      });
+    };
+    // this.handleUserChange = (e) => {
+    //   if (e.key === 'Enter') {
+    //     this.props.changeUser({
+    //       username: this.state.username
+    //     });
+    //   }
+    // };
+    // handle change to 'message' field
+    this.handleMessage = (e) => {
+      this.setState({
+        message: e.target.value
+      });
+    };
+    // on 'Enter' send message back to App
+    this.submitNewMessage = (e) => {
+      const message = this.state.message
+      if (e.key === 'Enter' && message) {
+        this.props.addMessage({
+          username: this.state.username || 'Anonymous',
+          content: message,
+          messageType: 'user'
+        });
+      }
     }
+  // end of constructor
   }
+
+
+
+
 
   render() {
     return (
@@ -42,6 +53,7 @@ class ChatBar extends Component {
           type="text"
           value={this.state.username}
           onChange={this.handleUser}
+          // onKeyPress={this.handleUserChange}
           placeholder="Your Name (Optional)"
         />
         <input
@@ -49,7 +61,7 @@ class ChatBar extends Component {
           type="text"
           value={this.state.message}
           onChange={this.handleMessage}
-          onKeyPress={this.handleKeyPress}
+          onKeyPress={this.submitNewMessage}
           placeholder="Type a message and hit ENTER"
           />
       </footer>

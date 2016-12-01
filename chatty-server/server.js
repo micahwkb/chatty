@@ -1,7 +1,7 @@
 const express      = require('express');
 const SocketServer = require('ws').Server;
+const uuid         = require('node-uuid');
 const PORT         = 4000;
-
 // express server
 const server = express()
   .use(express.static('public'))
@@ -12,7 +12,6 @@ const wss = new SocketServer({ server });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  ws.send('Server: yep.');
   // client opens socket connection
   ws.on('open', function(event) {
     console.log(event.data)
@@ -20,9 +19,13 @@ wss.on('connection', (ws) => {
 
   // client sends message
   ws.on('message', function(event) {
-    ws.send(event.data);
-    console.log(event);
-  })
+    const messageBody = JSON.parse(event)
+    messageBody.id = uuid.v1();
+    // console.log(messageBody);
+    wss.clients.forEach(function each(client) {
+      client.send(JSON.stringify(messageBody));
+    });
+  });
 
   // client closes socket
   ws.on('close', () => console.log('Client disconnected'));

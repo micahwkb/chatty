@@ -3,6 +3,85 @@ import React, {Component} from 'react';
 import ChatBar from './ChatBar';
 import MessageList from './MessageList';
 
+class App extends Component {
+
+  constructor(prop) {
+    super(prop);
+    this.state = {
+      currentUser: {name: ''},
+      messages: []
+    }
+    this.userChanged = (newName) => {
+      // console.log(oldName, newName);
+      let oldName = this.state.currentUser.name;
+      if ( oldName !== '') {
+        const systemMessage = {
+          content: `${oldName} changed their name to ${newName}`
+          };
+        this.socket.send(JSON.stringify(systemMessage));
+      }
+      // update currentUser in state
+      this.state.currentUser.name = newName
+    }
+    this.addMessage = (content) => {
+      const messageBody = JSON.stringify(content);
+      const messageUser = content.username;
+
+      if (messageUser !== this.state.currentUser.name) {
+        this.userChanged(messageUser);
+      }
+      this.socket.send(messageBody);
+    }
+    this.changeUser = (newUser) => {
+      this.state.currentUser.name = newUser.username;
+      let message = this.state.messages.concat()
+      // console.log("CurrentUser:",this.state.currentUser.name)
+    }
+
+  }
+
+  componentDidMount() {
+    console.log("componentDidMount <App />");
+    // init WebSocket client for this App instance
+    this.socket = new WebSocket('ws://localhost:4000');
+
+
+    this.socket.onopen = (event) => {
+      console.log('socket client connected');
+    }
+    this.socket.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      // console.log(this.state)
+      let messages = this.state.messages.concat(newMessage)
+      this.setState({ messages: messages })
+    }
+  }
+
+
+  render() {
+
+    return (
+      <div className="wrapper">
+        <nav>
+          <h1>Chatty</h1>
+        </nav>
+        <MessageList messages={this.state.messages} />
+        <ChatBar
+          handleName={this.handleName}
+          handleMessage={this.handleMessage}
+          addMessage={this.addMessage}
+          changeUser={this.changeUser}
+          username={this.state.currentUser.name}
+        />
+      </div>
+    );
+  }
+}
+export default App;
+
+
+// example data
+/*
 const data = {
   // optional. if currentUser is not defined, it means the user is Anonymous
   currentUser: {name: "Bob"},
@@ -19,54 +98,7 @@ const data = {
     }
   ]
 };
-
-
-
-class App extends Component {
-
-  constructor(prop) {
-    super(prop);
-    this.state = data;
-  }
-
-  addMessage(username, message) {
-    console.log(username, message)
-  }
-
-  componentDidMount() {
-    console.log("componentDidMount <App />");
-
-    // init WebSocket client for this App instance
-    this.socket = new WebSocket('ws://localhost:4000');
-
-    this.socket.onopen = function(event) {
-      console.log('Client: I am connected, right?');
-    }
-    this.socket.onmessage = function(event) {
-      console.log(event.data);
-    }
-  }
-
-  render() {
-
-    return (
-      <div className="wrapper">
-        <nav>
-          <h1>Chatty</h1>
-        </nav>
-        <MessageList messages={this.state.messages} />
-        <ChatBar
-        handleName={this.handleName}
-        handleMessage={this.handleMessage}
-        addMessage={this.addMessage}
-        user={this.state.currentUser}
-
-        />
-      </div>
-    );
-  }
-}
-export default App;
+*/
 
 // example, within componentDidMount
 /*

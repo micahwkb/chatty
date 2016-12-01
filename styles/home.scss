@@ -21,6 +21,7 @@ nav h1 {
 #message-list {
   height: calc(100vh - 131px);
   padding: 16px 8px;
+  overflow-y: scroll;
 }
 #message-list .message {
   padding: 4px 0;
