@@ -15,6 +15,7 @@ class ChatBar extends Component {
       });
     };
     // send new username up to App on ENTER press
+    //RB How about {key} instead of e
     this.handleUserChange = (e) => {
       if (e.key === 'Enter') {
         this.props.changeUser(this.state.username);
@@ -28,6 +29,7 @@ class ChatBar extends Component {
     };
     // on 'Enter' send message back to App
     this.submitNewMessage = (e) => {
+      //RB ES6 Destructuring
       const message = this.state.message
       // don't submit empty message
       if (e.key === 'Enter' && message) {

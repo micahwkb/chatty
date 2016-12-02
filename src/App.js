@@ -6,7 +6,7 @@ import ChatBar from './ChatBar';
 import MessageList from './MessageList';
 
 class App extends Component {
-
+  //RB - props, not prop
   constructor(prop) {
     super(prop);
     this.state = {
@@ -16,20 +16,31 @@ class App extends Component {
       userMessageCount: 0,
       connectedUsers: 0
     }
-
+    // RB Quite a bit of comments, let's briefly discuss these
     // send user's message to socket server
+    // RB another format is addMessage(content) { ... }
+    // addMessage(content){
+    //   ...rest of stuff
+    // }
     this.addMessage = (content) => {
-      const username = this.state.currentUser.name || 'Anonymous';
-      if (this.state.userMessageCount === 0) {
+      //RB this.state.currentUser.name (let's chat about accessing nested properties)
+      //RB How about assining name as 'Anonymous' from the start?
+      const {currentUser, userColor, userMessageConut} = this.state;
+
+
+      const username = currentUser.name || 'Anonymous';
+      if (userMessageCount === 0) {
         this.changeUser(username)
       }
       // increment this client's message count
-      this.state.userMessageCount ++;
+      //RB Let's look at destructuring as well (accessing items on this.state)
+      //RB Why the space between ++?
+      userMessageCount++;
       const userMessage = {
         type: 'incomingMessage',
         content: content,
         username: username,
-        colour: this.state.userColour
+        colour: userColour
       }
       // send message to socket server
       this.socket.send(JSON.stringify(userMessage));
@@ -38,7 +49,8 @@ class App extends Component {
     // to messages array
     this.buildMessages = (newMessage) => {
       const messages = this.state.messages.concat(newMessage);
-      this.setState({ messages: messages });
+      //RB ES6 feature
+      this.setState({ messages });
     }
     // receiving username change via ENTER press from ChatBar
     this.changeUser = (newUser) => {
@@ -50,7 +62,9 @@ class App extends Component {
       // ignore attempts to change to same username
       if (newUser !== currentUser) {
         // setting name before first post
+        //RB also can take advantage of truthy/falsey
         if (this.state.userMessageCount === 0) {
+          //RB Awesome using back ticks
           systemMessage.content = `${newUser} joined the chat`;
         }
         // change in user name AFTER first post
@@ -60,8 +74,9 @@ class App extends Component {
         // send message to socket server
         this.socket.send(JSON.stringify(systemMessage));
         // handle empty user
-        let name = newUser || 'Anonymous';
-        this.setState({ currentUser: {name: name} });
+        //RB Do we need name here? or can we place it within currentUser
+        // let currentUser = newUser || 'Anonymous';
+        this.setState({ currentUser: newUser || 'Anonymous' });
       }
     }
 
@@ -70,17 +85,18 @@ class App extends Component {
 
   componentDidMount() {
     // set a random colour for this client
+    // RB Spacing
     this.setState({ userColour: randomcolor({luminosity: 'dark'}) });
     // init WebSocket client for this App instance
     this.socket = new WebSocket('ws://localhost:4000');
     // connected to Web Socket Server:
-    this.socket.onopen = () => {
-      console.log('socket client connected');
-    }
+    // RB How about no => {}
+    this.socket.onopen = () => console.log('socket client connected');
     // received message from WSS:
-    this.socket.onmessage = (event) => {
-
-      const data = JSON.parse(event.data);
+    // RB You can destructure event and just put {data} instead of event
+    this.socket.onmessage = ({data}) => {
+      // const {data} = event;
+      const data = JSON.parse(data);
       data.className = 'message';
 
       switch(data.type) {
