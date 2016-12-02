@@ -11,11 +11,6 @@ class ChatBar extends Component {
 
     const { changeUser, addMessage } = this.props;
 
-   /* this.updateUserField = ({ target }) => {
-      this.setState({
-        username: target.value
-      });
-    };*/
     this.submitNewUsername = ({ key, target }) => {
       // don't submit empty username
       if (key === 'Enter' && target.value) {
@@ -27,11 +22,11 @@ class ChatBar extends Component {
         message: target.value
       });
     };
-    this.submitNewMessage = ({ key }) => {
+    this.submitNewMessage = ({ key, target }) => {
       const { message } = this.state;
       // don't submit empty message
-      if (key === 'Enter' && message) {
-        addMessage(message);
+      if (key === 'Enter' && target.value) {
+        addMessage(target.value);
       }
     }
   }
@@ -46,7 +41,6 @@ class ChatBar extends Component {
           id="username"
           type="text"
           value={username}
-          onChange={this.updateUserField}
           onKeyPress={this.submitNewUsername}
           placeholder="Your Name (Optional, hit ENTER to set)"
         />

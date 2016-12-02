@@ -7,7 +7,7 @@ require('../styles/application.scss');
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Render sub-components
+// Render sub-component
 import App from './App'
 
 ReactDOM.render(<App />, document.getElementById('react-root'));

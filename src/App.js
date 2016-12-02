@@ -11,24 +11,25 @@ class App extends Component {
     super(props);
     this.state = {
       messages: [],
-      userMessageCount: 0
+      userMessageCount: 0,
+      nameSet: false,
+      userColour: randomcolor({ luminosity: 'dark' })
     }
 
-    // send user's message to socket server
     this.sendMessageToServer = (content) => {
-      const username = this.state.currentUser || 'Anonymous';
-      if (this.state.userMessageCount === 0) {
-        this.changeUser(username)
+      const { currentUser, userMessageCount, userColour } = this.state;
+      const username = currentUser || 'Anonymous';
+      // insert "user joined" message if first post
+      if (!userMessageCount) {
+        this.changeUser(username);
       }
-      // increment this client's message count
       this.state.userMessageCount++;
       const userMessage = {
         type: 'incomingMessage',
         content: content,
         username: username,
-        colour: this.state.userColour
+        colour: userColour
       }
-      // send message to socket server
       this.socket.send(JSON.stringify(userMessage));
     }
     // add new message rec'd back from socket server
@@ -39,21 +40,19 @@ class App extends Component {
     }
     this.changeUser = (newUser) => {
 
-      const { currentUser, userMessageCount } = this.state;
+      const { currentUser, userMessageCount, nameSet } = this.state;
       const systemMessage = {
-            type: 'incomingNotification',
+            type: 'incomingNotification'
           };
-      // ignore attempts to change to same username
       if (newUser !== currentUser) {
         // setting name before first post
-        if (userMessageCount === 0) {
+        if (!nameSet) {
           systemMessage.content = `${newUser} joined the chat`;
+          this.setState({ nameSet: true })
         }
-        // change in user name AFTER first post
         else {
           systemMessage.content = `${currentUser || 'Anonymous'} changed their name to ${newUser}`;
         }
-        // send message to socket server
         this.socket.send(JSON.stringify(systemMessage));
         this.setState({ currentUser: newUser });
       }
@@ -62,33 +61,28 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // set a random colour for this client
-    this.setState({ userColour: randomcolor({ luminosity: 'dark' }) });
-    // init WebSocket client for this App instance
+
     this.socket = new WebSocket('ws://localhost:4000');
-    // connected to Web Socket Server:
-    this.socket.onopen = () => {
-      console.log('socket client connected');
-    }
-    // received message from WSS:
-    this.socket.onmessage = (event) => {
+    this.socket.onopen = () => console.log('Connected to websocket server');
 
-      const data = JSON.parse(event.data);
-      data.className = 'message';
+    this.socket.onmessage = ({ data }) => {
 
-      switch(data.type) {
+      const msg = JSON.parse(data);
+      msg.className = 'message';
+
+      switch(msg.type) {
         case 'incomingNotification':
-          data.className += ' system';
-          this.buildMessages(data);
+          msg.className += ' system';
+          this.buildMessages(msg);
           break;
         case 'incomingMessage':
-          this.buildMessages(data);
+          this.buildMessages(msg);
           break;
         case 'userCount':
-          this.setState({ connectedUsers: data.count});
+          this.setState({ connectedUsers: msg.count});
           break;
         default:
-          throw new Error('unknown message type ' + data.type)
+          throw new Error('unknown message type ' + msg.type)
       }
     }
   }
