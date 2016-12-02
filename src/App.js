@@ -7,24 +7,21 @@ import MessageList from './MessageList';
 
 class App extends Component {
 
-  constructor(prop) {
-    super(prop);
+  constructor(props) {
+    super(props);
     this.state = {
-      currentUser: {name: ''},
-      userColour: randomcolor(),
       messages: [],
-      userMessageCount: 0,
-      connectedUsers: 0
+      userMessageCount: 0
     }
 
     // send user's message to socket server
-    this.addMessage = (content) => {
-      const username = this.state.currentUser.name || 'Anonymous';
+    this.sendMessageToServer = (content) => {
+      const username = this.state.currentUser || 'Anonymous';
       if (this.state.userMessageCount === 0) {
         this.changeUser(username)
       }
       // increment this client's message count
-      this.state.userMessageCount ++;
+      this.state.userMessageCount++;
       const userMessage = {
         type: 'incomingMessage',
         content: content,
@@ -40,17 +37,16 @@ class App extends Component {
       const messages = this.state.messages.concat(newMessage);
       this.setState({ messages: messages });
     }
-    // receiving username change via ENTER press from ChatBar
     this.changeUser = (newUser) => {
-      // compare to current state value
-      const currentUser = this.state.currentUser.name;
+
+      const { currentUser, userMessageCount } = this.state;
       const systemMessage = {
             type: 'incomingNotification',
           };
       // ignore attempts to change to same username
       if (newUser !== currentUser) {
         // setting name before first post
-        if (this.state.userMessageCount === 0) {
+        if (userMessageCount === 0) {
           systemMessage.content = `${newUser} joined the chat`;
         }
         // change in user name AFTER first post
@@ -59,18 +55,15 @@ class App extends Component {
         }
         // send message to socket server
         this.socket.send(JSON.stringify(systemMessage));
-        // handle empty user
-        let name = newUser || 'Anonymous';
-        this.setState({ currentUser: {name: name} });
+        this.setState({ currentUser: newUser });
       }
     }
-
-
+  // end of contstructor
   }
 
   componentDidMount() {
     // set a random colour for this client
-    this.setState({ userColour: randomcolor({luminosity: 'dark'}) });
+    this.setState({ userColour: randomcolor({ luminosity: 'dark' }) });
     // init WebSocket client for this App instance
     this.socket = new WebSocket('ws://localhost:4000');
     // connected to Web Socket Server:
@@ -102,15 +95,17 @@ class App extends Component {
 
   render() {
 
+    const { connectedUsers, messages, currentUser } = this.state;
+
     return (
       <div className="wrapper">
-        <Nav userCount={this.state.connectedUsers} />
-        <MessageList messages={this.state.messages} />
+        <Nav userCount={connectedUsers} />
+        <MessageList messages={messages} />
         <ChatBar
-          username={this.state.currentUser.name}
+          username={currentUser}
           changeUser={this.changeUser}
           handleName={this.handleName}
-          addMessage={this.addMessage}
+          addMessage={this.sendMessageToServer}
           handleMessage={this.handleMessage}
         />
       </div>

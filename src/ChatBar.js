@@ -8,57 +8,53 @@ class ChatBar extends Component {
       username: this.props.username,
       message: ''
     };
-    // show change to 'username' field
-    this.handleUser = (e) => {
+
+    const { changeUser, addMessage } = this.props;
+
+   /* this.updateUserField = ({ target }) => {
       this.setState({
-        username: e.target.value
+        username: target.value
       });
-    };
-    // send new username up to App on ENTER press
-    this.handleUserChange = (e) => {
-      if (e.key === 'Enter') {
-        this.props.changeUser(this.state.username);
+    };*/
+    this.submitNewUsername = ({ key, target }) => {
+      // don't submit empty username
+      if (key === 'Enter' && target.value) {
+        changeUser(target.value);
       }
     };
-    // show change to 'message' field
-    this.handleMessage = (e) => {
+    this.updateMessageField = ({ target }) => {
       this.setState({
-        message: e.target.value
+        message: target.value
       });
     };
-    // on 'Enter' send message back to App
-    this.submitNewMessage = (e) => {
-      const message = this.state.message
+    this.submitNewMessage = ({ key }) => {
+      const { message } = this.state;
       // don't submit empty message
-      if (e.key === 'Enter' && message) {
-        this.props.addMessage(message);
-      }
-    }
-    this.submitName = (e) => {
-      const name = this.state.username
-      // don't submit empty message
-      if (e.key === 'Enter') {
-        this.props.changeUser(name);
+      if (key === 'Enter' && message) {
+        addMessage(message);
       }
     }
   }
 
   render() {
+
+    const { username, message } = this.state;
+
     return (
       <footer>
         <input
           id="username"
           type="text"
-          value={this.state.username}
-          onChange={this.handleUser}
-          onKeyPress={this.handleUserChange}
+          value={username}
+          onChange={this.updateUserField}
+          onKeyPress={this.submitNewUsername}
           placeholder="Your Name (Optional, hit ENTER to set)"
         />
         <input
           id="new-message"
           type="text"
-          value={this.state.message}
-          onChange={this.handleMessage}
+          value={message}
+          onChange={this.updateMessageField}
           onKeyPress={this.submitNewMessage}
           placeholder="Type a message and hit ENTER"
           />
