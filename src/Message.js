@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 class Message extends Component {
 
   render() {
+
     const { content, className, colour, username } = this.props;
     const imgURL = content.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)\.(png|gif|jpg)/gi);
 
