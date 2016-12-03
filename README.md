@@ -4,7 +4,7 @@
 - Built in 4 1/2 days during week 5 of Lighthouse Labs web bootcamp
 
 ## Learned during this project
-- React JSX (that's some learning curve!)
+- React JSX
 - ES6 - more advanced usage
 - Web Sockets
 - Webpack server
