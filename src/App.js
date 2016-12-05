@@ -23,6 +23,7 @@ class App extends Component {
       if (!userMessageCount) {
         this.changeUser(username);
       }
+
       this.state.userMessageCount++;
       const userMessage = {
         type: 'incomingMessage',
@@ -35,8 +36,8 @@ class App extends Component {
     // add new message rec'd back from socket server
     // to messages array
     this.buildMessages = (newMessage) => {
-      const messages = this.state.messages.concat(newMessage);
-      this.setState({ messages: messages });
+      this.setState({ messages: [...this.state.messages, newMessage] });
+      // this.setState({ messages: messages });
     }
     this.changeUser = (newUser) => {
 
